@@ -1,8 +1,18 @@
 from fastapi import FastAPI
 import random
+from pydantic import BaseModel
+from typing import Optional , Union
+
+
+class Product(BaseModel):
+    name : str
+    price : float
+    stock : int
+    category : Union[str , None] = None
+    inStock : Optional[bool] = None
+    
 
 app = FastAPI()
-
 
 @app.get("/")
 def read_root():
@@ -22,10 +32,16 @@ def quote(person: str):
         temp = quotes.get(person)
 
 
-
     #return quotes.get(person)
-
     return {"output": temp}
 
 
+@app.post("/product/")
+def product(product : Product):
+    product_dict = product.dict()
+    product.stock = max (0 , product.stock)
+    product_dict.update({"stock" : product.stock})
+    product_dict.update({"inStock" : product.stock > 0})
+    
+    return {"output" : product_dict}
     
